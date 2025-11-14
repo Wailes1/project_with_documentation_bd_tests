@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ru" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>notebook.commands &mdash; документация Менеджер Заметок 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=9ca2116e"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/translations.js?v=5b699b7f"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="../../genindex.html" />
+    <link rel="search" title="Поиск" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Менеджер Заметок
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Поиск в документации" aria-label="Поиск в документации" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Меню навигации">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Модули проекта</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Меню навигации для мобильных устройств" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Менеджер Заметок</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Навигация по страницам">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Код модуля</a></li>
+      <li class="breadcrumb-item active">notebook.commands</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Исходный код notebook.commands</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Модуль, содержащий логику команд.</span>
+
+<span class="sd">Содержит класс NoteCommands, который инкапсулирует все действия</span>
+<span class="sd">над заметками: добавление, вывод списка, поиск и удаление.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Note</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoteStorage</span>
+
+<div class="viewcode-block" id="NoteCommands">
+<a class="viewcode-back" href="../../modules.html#notebook.commands.NoteCommands">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoteCommands</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Класс для обработки команд пользователя.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        storage (NoteStorage): Объект для работы с хранилищем заметок.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="n">NoteStorage</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Инициализирует обработчик команд.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            storage (NoteStorage): Объект для работы с хранилищем.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage</span> <span class="o">=</span> <span class="n">storage</span>
+    
+<div class="viewcode-block" id="NoteCommands.add_note">
+<a class="viewcode-back" href="../../modules.html#notebook.commands.NoteCommands.add_note">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Добавляет новую заметку.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            title (str): Заголовок заметки.</span>
+<span class="sd">            content (str): Текст заметки.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Если заголовок или содержание пустые.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">content</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Заголовок и содержание обязательны!&quot;</span><span class="p">)</span>
+        
+        <span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">saved_note</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">save_note</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Заметка добавлена успешно! (ID: </span><span class="si">{</span><span class="n">saved_note</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="NoteCommands.list_notes">
+<a class="viewcode-back" href="../../modules.html#notebook.commands.NoteCommands.list_notes">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Показывает все заметки с возможностью фильтрации по дате.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            date_filter (str, optional): Фильтр по дате. По умолчанию None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">get_all_notes</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">date_filter</span><span class="p">:</span>
+            <span class="n">notes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">filter_notes_by_date</span><span class="p">(</span><span class="n">notes</span><span class="p">,</span> <span class="n">date_filter</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">date_filter</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📝 Заметок за </span><span class="si">{</span><span class="n">date_filter</span><span class="si">}</span><span class="s2"> не найдено.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📝 Заметок пока нет. Создайте первую!&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="k">if</span> <span class="n">date_filter</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📋 Я нашёл </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span><span class="si">}</span><span class="s2"> заметок за </span><span class="si">{</span><span class="n">date_filter</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📋 Я нашёл </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span><span class="si">}</span><span class="s2"> заметок:&quot;</span><span class="p">)</span>
+            
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Заголовок: </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Содержание: </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создана: </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">created_at</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="NoteCommands.search_notes">
+<a class="viewcode-back" href="../../modules.html#notebook.commands.NoteCommands.search_notes">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date_filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ищет заметки по тексту в заголовке или содержании.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            query (str): Текст для поиска.</span>
+<span class="sd">            date_filter (str, optional): Фильтр по дате. По умолчанию None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Введите текст для поиска!&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="n">notes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">search_notes</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">date_filter</span><span class="p">:</span>
+            <span class="n">notes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">filter_notes_by_date</span><span class="p">(</span><span class="n">notes</span><span class="p">,</span> <span class="n">date_filter</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">date_filter</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;По запросу &#39;</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&#39; за </span><span class="si">{</span><span class="n">date_filter</span><span class="si">}</span><span class="s2"> я ничего не нашёл (&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;По запросу &#39;</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&#39; я ничего не нашёл (&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="k">if</span> <span class="n">date_filter</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Я нашёл </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span><span class="si">}</span><span class="s2"> заметок по запросу &#39;</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&#39; за </span><span class="si">{</span><span class="n">date_filter</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Я нашёл </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span><span class="si">}</span><span class="s2"> заметок по запросу &#39;</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&#39;:&quot;</span><span class="p">)</span>
+            
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">note</span><span class="o">.</span><span class="n">content</span><span class="p">[:</span><span class="mi">60</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="NoteCommands.delete_note">
+<a class="viewcode-back" href="../../modules.html#notebook.commands.NoteCommands.delete_note">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Удаляет заметку по ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            note_id (int): ID заметки для удаления.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">delete_note</span><span class="p">(</span><span class="n">note_id</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Заметка ID </span><span class="si">{</span><span class="n">note_id</span><span class="si">}</span><span class="s2"> удалена&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Заметка с ID </span><span class="si">{</span><span class="n">note_id</span><span class="si">}</span><span class="s2"> не найдена&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Авторские права 2025, Дмитрий Лютиков ВКБ-33. </p>
+  </div>
+
+  Собрано при помощи <a href="https://www.sphinx-doc.org/">Sphinx</a> с использованием
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">темы,</a>
+    предоставленной <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

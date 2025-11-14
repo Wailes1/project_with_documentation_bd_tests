@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ru" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>notebook.storage &mdash; документация Менеджер Заметок 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=9ca2116e"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/translations.js?v=5b699b7f"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="../../genindex.html" />
+    <link rel="search" title="Поиск" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Менеджер Заметок
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Поиск в документации" aria-label="Поиск в документации" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Меню навигации">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Модули проекта</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Меню навигации для мобильных устройств" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Менеджер Заметок</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Навигация по страницам">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Код модуля</a></li>
+      <li class="breadcrumb-item active">notebook.storage</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Исходный код notebook.storage</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Модуль для работы с хранилищем заметок.</span>
+
+<span class="sd">Отвечает за сохранение, чтение, удаление и поиск заметок в JSON-файле.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Note</span>
+
+<div class="viewcode-block" id="NoteStorage">
+<a class="viewcode-back" href="../../modules.html#notebook.storage.NoteStorage">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoteStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Класс для работы с файлом заметок в формате JSON.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        filename (str): Имя файла для хранения заметок.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;notes.json&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Инициализирует хранилище заметок.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str, optional): Имя файла для хранения. По умолчанию &quot;notes.json&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_storage_file</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_storage_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Создает файл для хранения заметок, если он не существует.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">([],</span> <span class="n">f</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 Создан новый файл для заметок: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Читает все заметки из файла.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[dict]: Список словарей с данными заметок.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: Если файл не найден.</span>
+<span class="sd">            json.JSONDecodeError: Если файл поврежден.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notes_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Записывает заметки в файл.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            notes_data (List[dict]): Список словарей с данными заметок.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            IOError: Если произошла ошибка записи в файл.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">notes_data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="NoteStorage.get_all_notes">
+<a class="viewcode-back" href="../../modules.html#notebook.storage.NoteStorage.get_all_notes">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Получает все заметки в виде объектов Note.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Note]: Список объектов заметок.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notes_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_notes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Note</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">note_data</span><span class="p">)</span> <span class="k">for</span> <span class="n">note_data</span> <span class="ow">in</span> <span class="n">notes_data</span><span class="p">]</span></div>
+
+    
+<div class="viewcode-block" id="NoteStorage.save_note">
+<a class="viewcode-back" href="../../modules.html#notebook.storage.NoteStorage.save_note">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Note</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Сохраняет заметку в файл.</span>
+<span class="sd">        </span>
+<span class="sd">        Если у заметки нет ID, ей присваивается новый уникальный ID</span>
+<span class="sd">        и она добавляется в хранилище.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            note (Note): Объект заметки для сохранения.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Note: Сохранённая заметка с присвоенным ID.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            IOError: Если произошла ошибка записи в файл.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notes_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_notes</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">notes_data</span><span class="p">:</span>
+                <span class="n">note</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notes_data</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">note</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">notes_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_notes</span><span class="p">(</span><span class="n">notes_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">note</span></div>
+
+    
+<div class="viewcode-block" id="NoteStorage.delete_note">
+<a class="viewcode-back" href="../../modules.html#notebook.storage.NoteStorage.delete_note">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Удаляет заметку по ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            note_id (int): ID заметки для удаления.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True если удаление успешно, False если заметка не найдена.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notes_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_notes</span><span class="p">()</span>
+        <span class="n">initial_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes_data</span><span class="p">)</span>
+        
+        <span class="n">notes_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes_data</span> <span class="k">if</span> <span class="n">note</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">note_id</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">initial_length</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_notes</span><span class="p">(</span><span class="n">notes_data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="NoteStorage.search_notes">
+<a class="viewcode-back" href="../../modules.html#notebook.storage.NoteStorage.search_notes">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ищет заметки по тексту в заголовке или содержании.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            query (str): Текст для поиска.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Note]: Список найденных заметок.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_notes</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">note</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span> 
+            <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">note</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">note</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">]</span></div>
+
+    
+<div class="viewcode-block" id="NoteStorage.filter_notes_by_date">
+<a class="viewcode-back" href="../../modules.html#notebook.storage.NoteStorage.filter_notes_by_date">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_notes_by_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Note</span><span class="p">],</span> <span class="n">date_filter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Фильтрует заметки по дате создания.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            notes (List[Note]): Список заметок для фильтрации.</span>
+<span class="sd">            date_filter (str): Фильтр даты (today, week, month, ГГГГ-ММ-ДД, ГГГГ-ММ, ГГГГ).</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Note]: Отфильтрованный список заметок.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="n">filtered_notes</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">note_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">created_at</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="n">date_filter</span> <span class="o">==</span> <span class="s1">&#39;today&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">note_date</span> <span class="o">==</span> <span class="n">today</span><span class="p">:</span>
+                        <span class="n">filtered_notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">date_filter</span> <span class="o">==</span> <span class="s1">&#39;week&#39;</span><span class="p">:</span>
+                    <span class="n">week_ago</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">note_date</span> <span class="o">&gt;=</span> <span class="n">week_ago</span><span class="p">:</span>
+                        <span class="n">filtered_notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">date_filter</span> <span class="o">==</span> <span class="s1">&#39;month&#39;</span><span class="p">:</span>
+                    <span class="n">month_ago</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">note_date</span> <span class="o">&gt;=</span> <span class="n">month_ago</span><span class="p">:</span>
+                        <span class="n">filtered_notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_filter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>  <span class="c1"># ГГГГ-ММ-ДД</span>
+                    <span class="n">filter_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_filter</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">note_date</span> <span class="o">==</span> <span class="n">filter_date</span><span class="p">:</span>
+                        <span class="n">filtered_notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_filter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>  <span class="c1"># ГГГГ-ММ</span>
+                    <span class="n">filter_year</span><span class="p">,</span> <span class="n">filter_month</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">date_filter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">note_date</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">filter_year</span> <span class="ow">and</span> <span class="n">note_date</span><span class="o">.</span><span class="n">month</span> <span class="o">==</span> <span class="n">filter_month</span><span class="p">:</span>
+                        <span class="n">filtered_notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_filter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># ГГГГ</span>
+                    <span class="n">filter_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date_filter</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">note_date</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">filter_year</span><span class="p">:</span>
+                        <span class="n">filtered_notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                        
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="k">continue</span>
+        
+        <span class="k">return</span> <span class="n">filtered_notes</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Авторские права 2025, Дмитрий Лютиков ВКБ-33. </p>
+  </div>
+
+  Собрано при помощи <a href="https://www.sphinx-doc.org/">Sphinx</a> с использованием
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">темы,</a>
+    предоставленной <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
